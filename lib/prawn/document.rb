@@ -234,35 +234,45 @@ module Prawn
      #   pdf.start_new_page(:margin => 100)
      #
      def start_new_page(options = {})
+       
        if last_page = state.page
          last_page_size    = last_page.size
          last_page_layout  = last_page.layout
          last_page_margins = last_page.margins
        end
-
-       state.page = Prawn::Core::Page.new(self, 
+       
+       page_options = {
          :size    => options[:size]   || last_page_size, 
          :layout  => options[:layout] || last_page_layout,
-         :margins => last_page_margins )
-
+         :margins => last_page_margins
+       }
+       
+       if options[:template]
+         object_id = state.store.import_page(options[:template], options[:template_page] || 1)
+         page_options.merge!(:object_id => object_id )
+       end
+       
+       state.page = Prawn::Core::Page.new(self, page_options) 
        apply_margin_options(options)
 
        use_graphic_settings
-      
+    
        unless options[:orphan]
          state.insert_page(state.page, @page_number)
          @page_number += 1
 
          save_graphics_state
-        
+         state.page.new_content_stream if options[:template]
+      
          canvas { image(@background, :at => bounds.top_left) } if @background 
-         @y = @bounding_box.absolute_top
-
+                    @y = @bounding_box.absolute_top
+         
          float do
            state.on_page_create_action(self)
          end
        end
-    end
+       
+     end
 
     # Returns the number of pages in the document
     #

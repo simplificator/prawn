@@ -142,6 +142,7 @@ module Prawn
       # exist. page_num is 1 indexed, so 1 indicates the first page.
       #
       def import_page(filename, page_num)
+        @loaded_objects = {}
         unless File.file?(filename)
           raise ArgumentError, "#{filename} does not exist"
         end
