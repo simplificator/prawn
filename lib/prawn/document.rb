@@ -233,6 +233,11 @@ module Prawn
      #   pdf.start_new_page(:left_margin => 50, :right_margin => 50)
      #   pdf.start_new_page(:margin => 100)
      #
+     # A template for a page can be specified by pointing to the path of and existing pdf. 
+     # One can also specify which page of the template which defaults otherwise to 1.
+     #
+     #  pdf.start_new_page(:template => multipage_template.pdf, :template_page => 2)
+     #
      def start_new_page(options = {})
        if last_page = state.page
          last_page_size    = last_page.size
@@ -240,30 +245,35 @@ module Prawn
          last_page_margins = last_page.margins
        end
        
-       page_options = {:size => options[:size] || last_page_size, 
-                       :layout  => options[:layout] || last_page_layout,
-                       :margins => last_page_margins}
-        
+       page_options = {
+         :size    => options[:size]   || last_page_size, 
+         :layout  => options[:layout] || last_page_layout,
+         :margins => last_page_margins
+       }
        page_options.merge!(:graphic_state => last_page.graphic_state) if last_page
-
-       state.page = Prawn::Core::Page.new(self, page_options)
-
+       
+       merge_template_options(page_options, options) if options[:template]
+       
+       state.page = Prawn::Core::Page.new(self, page_options) 
        apply_margin_options(options)
+       
+       state.page.new_content_stream if options[:template]
 
-       use_graphic_settings
-      
+       use_graphic_settings(options[:template])
+    
        unless options[:orphan]
          state.insert_page(state.page, @page_number)
          @page_number += 1
-        
+      
          canvas { image(@background, :at => bounds.top_left) } if @background 
-         @y = @bounding_box.absolute_top
-
+                    @y = @bounding_box.absolute_top
+         
          float do
            state.on_page_create_action(self)
          end
        end
-    end
+       
+     end
 
     # Returns the number of pages in the document
     #
@@ -524,14 +534,21 @@ module Prawn
     end
     
     private
-
-    def use_graphic_settings
-      set_fill_color unless current_fill_color == "000000"
-      set_stroke_color unless current_stroke_color == "000000"
-      write_line_width unless line_width == 1
-      write_stroke_cap_style unless cap_style == :butt
-      write_stroke_join_style unless join_style == :miter      
-      write_stroke_dash if dashed?
+    
+    def merge_template_options(page_options, options)
+      object_id = state.store.import_page(options[:template], options[:template_page] || 1)
+      page_options.merge!(:object_id => object_id )
+    end
+      
+    # setting override_settings to true ensures that a new graphic state does not end up using 
+    # previous settings especially from imported template streams
+    def use_graphic_settings(override_settings = false)
+      set_fill_color if current_fill_color != "000000" || override_settings
+      set_stroke_color if current_stroke_color != "000000" || override_settings
+      write_line_width if line_width != 1 || override_settings
+      write_stroke_cap_style if cap_style != :butt || override_settings
+      write_stroke_join_style if join_style != :miter || override_settings     
+      write_stroke_dash if dashed? || override_settings
     end
 
     def generate_margin_box
