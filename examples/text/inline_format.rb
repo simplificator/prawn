@@ -29,7 +29,7 @@ Prawn::Document.generate("inline_format.pdf") do |pdf|
   
   pdf.text("<color rgb='00ff00'>link: <font size='24' character_spacing='7.5'>please make</font> <color rgb='#0000ff'><u><link href='http://wiki.github.com/sandal/prawn/'>this</link></u></color> clickable.</color> Here we have A<color rgb='#0000ff'><sup><link href='http://wiki.github.com/sandal/prawn/'>superscript</link></sup></color> link and A<color rgb='#0000ff'><sub><link href='http://wiki.github.com/sandal/prawn/'> subscript</link></sub></color> link.",
        :inline_format => true)
-
+       
   pdf.text("<color c='100' m='0' y='0' k='0'><font size='24'>CMYK</font></color>",
        :inline_format => true)
 
@@ -46,7 +46,7 @@ Prawn::Document.generate("inline_format.pdf") do |pdf|
            :inline_format => true)
 
 
-  pdf.font("Helvetica")
+  pdf.font("Helvetica")  
 
 
 
@@ -100,5 +100,40 @@ Prawn::Document.generate("inline_format.pdf") do |pdf|
                         :callback => [highlight_callback, border_callback] },
                       { :text => "   hello" }
                      ], :indent_paragraphs => 40, :character_spacing => -2)
+                     
+                     
+  pdf.start_new_page
+  
+  pdf.bounding_box [100,600], :width => 200 do
+    pdf.move_down 10
+    pdf.text "The rain in spain falls mainly on the plains " * 5
+    pdf.move_down 20
+    pdf.stroke do
+      pdf.line pdf.bounds.top_left,    pdf.bounds.top_right
+      pdf.line pdf.bounds.bottom_left, pdf.bounds.bottom_right
+    end
+  end
+  
+  pdf.start_new_page
+  
+  pdf.add_dest("fit", pdf.dest_fit(1))
+    
+  pdf.add_dest("xyzoom!", pdf.dest_xyz(300, 400, 2, 1))
+  
+  pdf.add_dest("fit_rectangle", pdf.dest_fit_rect(90, 300, 160, 280, 1))
+  
+  pdf.add_dest("fit_bounds", pdf.dest_fit_bounds(2))
+  
+  
+  pdf.text(%Q{<link anchor="fit"><u>We can go to page 1!</u></link>}, :inline_format => true)
+      
+  pdf.text(%Q{<link anchor="xyzoom!"><u>We can zoom to middle of page 1!(at least in some viewers like Acrobat)</u></link>}, :inline_format => true)
+
+  pdf.text(%Q{<link anchor="fit_rectangle"><u>We can go to a rectangle on page 1!</u></link>}, :inline_format => true)
+
+  pdf.text(%Q{<link anchor="fit_bounds"><u>We can go to the bounding box on page 2!</u></link>}, :inline_format => true)
+  
 end
+
+
 

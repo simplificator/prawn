@@ -87,5 +87,9 @@ module Prawn
     #
     EmptyGraphicStateStack = Class.new(StandardError)
     
+    # This error is raised when trying to call a page_number for a destination that is out of range
+    #
+    DestinationPageNumberOutOfRange = Class.new(StandardError)
+    
   end
 end   
