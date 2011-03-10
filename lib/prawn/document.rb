@@ -60,7 +60,7 @@ module Prawn
     include Prawn::Text
     include Prawn::Graphics
     include Prawn::Images
-    include Prawn::Stamp
+    include Prawn::Document::Stamp
 
     # Any module added to this array will be included into instances of
     # Prawn::Document at the per-object level.  These will also be inherited by
@@ -257,14 +257,16 @@ module Prawn
        end
        merge_template_options(page_options, options) if options[:template]
 
-       state.page = Prawn::Core::Page.new(self, page_options)
+       state.page = Prawn::Core::Page.new(self, page_options)      
 
        apply_margin_options(options)
        state.page.new_content_stream if options[:template]
        use_graphic_settings(options[:template])
 
        unless options[:orphan]
+         
          state.insert_page(state.page, @page_number)
+         
          @page_number += 1
 
          canvas { image(@background, :at => bounds.top_left) } if @background

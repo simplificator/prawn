@@ -21,11 +21,20 @@ module Prawn
         @skip_encoding           = options.fetch(:skip_encoding, false)
         @before_render_callbacks = []
         @on_page_create_callback = nil
+        @stamp                   = nil
       end
 
       attr_accessor :store, :version, :pages, :page, :trailer, :compress,
         :encrypt, :encryption_key, :optimize_objects, :skip_encoding,
-        :before_render_callbacks, :on_page_create_callback
+        :before_render_callbacks, :on_page_create_callback, :stamp
+        
+      def dictionary(page_dictionary)
+        stamp ? stamp.dictionary : store[page_dictionary]
+      end
+
+      def content
+        stamp ? stamp.content : page.content
+      end
 
       def populate_pages_from_store(document)
         return 0 if @store.page_count <= 0 || @pages.size > 0
@@ -68,7 +77,7 @@ module Prawn
         store.compact if optimize_objects
         store.each do |ref|
           ref.offset = output.size
-          output << (@encrypt ? ref.encrypted_object(@encryption_key) : 
+          output << (@encrypt ? ref.encrypted_object(@encryption_key) :
                                 ref.object)
         end
       end

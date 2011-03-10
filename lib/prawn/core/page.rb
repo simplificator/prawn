@@ -47,27 +47,11 @@ module Prawn
       end
 
       def in_stamp_stream?
-        !!@stamp_stream
-      end
-
-      def stamp_stream(dictionary)
-        @stamp_stream     = ""
-        @stamp_dictionary = dictionary
-
-        document.open_graphics_state
-        document.send(:freeze_stamp_graphics)
-        yield if block_given?
-        document.close_graphics_state
-
-        @stamp_dictionary.data[:Length] = @stamp_stream.length + 1
-        @stamp_dictionary << @stamp_stream
-
-        @stamp_stream      = nil
-        @stamp_dictionary  = nil
+        !!document.state.stamp
       end
 
       def content
-        @stamp_stream || document.state.store[@content]
+        document.state.store[@content]
       end
 
       # As per the PDF spec, each page can have multiple content streams. This will
@@ -86,7 +70,7 @@ module Prawn
       end
 
       def dictionary
-        @stamp_dictionary || document.state.store[@dictionary]
+        document.state.dictionary(@dictionary)
       end
 
       def resources
@@ -159,9 +143,6 @@ module Prawn
         unless dictionary.data[:Contents].is_a?(Array) # content only on leafs
           @content    = dictionary.data[:Contents].identifier
         end
-
-        @stamp_stream      = nil
-        @stamp_dictionary  = nil
         @imported_page     = true
       end
 
@@ -177,9 +158,6 @@ module Prawn
                                    :Contents    => content)
 
         resources[:ProcSet] = [:PDF, :Text, :ImageB, :ImageC, :ImageI]
-
-        @stamp_stream      = nil
-        @stamp_dictionary  = nil
       end
 
       # some entries in the Page dict can be inherited from parent Pages dicts.

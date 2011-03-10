@@ -186,7 +186,7 @@ module Prawn
     # Same as for #text
     #
     def formatted_text(array, options={})
-      options = inspect_options_for_text(options.dup)
+      options = inspect_options_for_text(options.dup)      
 
       if @indent_paragraphs
         Text::Formatted::Parser.array_paragraphs(array).each do |paragraph|

@@ -30,6 +30,7 @@ module Prawn
           root.data[:Pages] = ref(:Type => :Pages, :Count => 0, :Kids => [])
         end
       end
+        
 
       def ref(data, &block)
         push(size + 1, data, &block)

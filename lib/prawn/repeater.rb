@@ -121,7 +121,7 @@ module Prawn
         @document.stamp(@stamp_name) if match?(page_number)
       elsif @block
         @document.save_graphics_state(@graphic_state) do
-          @document.send(:freeze_stamp_graphics)
+          @document.freeze_stamp_graphics
           @block.call
         end
       end

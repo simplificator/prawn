@@ -55,7 +55,7 @@ module Prawn
       #
       def add_content(str)
         save_graphics_state if graphic_state.nil?
-        state.page.content << str << "\n"
+        state.content << str << "\n"
       end  
 
       # The Name dictionary (PDF spec 3.6.3) for this document. It is
@@ -106,6 +106,7 @@ module Prawn
         (1..page_count).each do |i|
           go_to_page i
           repeaters.each { |r| r.run(i) }
+          
           restore_graphics_state if graphic_stack.present?
           state.page.finalize
         end
