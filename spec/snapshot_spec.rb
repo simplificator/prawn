@@ -173,6 +173,6 @@ describe "Prawn::Document#transaction" do
       page_number.should == 1
     end
   end
-
+  
 end
 

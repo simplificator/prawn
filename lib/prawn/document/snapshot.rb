@@ -55,13 +55,15 @@ module Prawn
          :page_number     => page_number,
          :page_kids       => state.store.pages.data[:Kids].map{|kid| kid.identifier},
          :dests           => names? && 
-                             Marshal.load(Marshal.dump(names.data[:Dests]))}
+                             Marshal.load(Marshal.dump(names.data[:Dests])), 
+         :graphic_stack   => Marshal.load(Marshal.dump(graphic_stack)),
+          }
       end
 
       # Rolls the page state back to the state of the given snapshot.
       #
-      def restore_snapshot(shot)
-        page = state.page
+      def restore_snapshot(shot)        
+        page = state.pages.pop
         # Because these objects are referenced by identifier from the Pages
         # dictionary, we can't just restore them over the current refs in
         # page_content and current_page. We have to restore them over the old
@@ -83,6 +85,7 @@ module Prawn
         if shot[:dests]
           names.data[:Dests] = shot[:dests] 
         end
+        page.stack = shot[:graphic_stack]
       end
 
     end
