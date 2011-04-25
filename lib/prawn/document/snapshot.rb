@@ -57,13 +57,14 @@ module Prawn
          :dests           => names? && 
                              Marshal.load(Marshal.dump(names.data[:Dests])), 
          :graphic_stack   => Marshal.load(Marshal.dump(graphic_stack)),
+         :page_count      => page_count
           }
       end
 
       # Rolls the page state back to the state of the given snapshot.
       #
-      def restore_snapshot(shot)        
-        page = state.pages.pop
+      def restore_snapshot(shot)  
+        page = state.page
         # Because these objects are referenced by identifier from the Pages
         # dictionary, we can't just restore them over the current refs in
         # page_content and current_page. We have to restore them over the old
@@ -86,6 +87,7 @@ module Prawn
           names.data[:Dests] = shot[:dests] 
         end
         page.stack = shot[:graphic_stack]
+        state.pages.pop(page_count - shot[:page_count])
       end
 
     end

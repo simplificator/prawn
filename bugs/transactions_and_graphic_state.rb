@@ -14,11 +14,19 @@ class PrawnAndTransaction < Prawn::Document
       fill_color "888888"
       text "still inside a transaction"
       start_new_page
+      start_new_page
       rollback
     end
 
     text "Page 1"
     start_new_page
+    
+    transaction do
+      fill_color "888888"
+      text "inside a transaction without a new page created"
+      rollback
+    end
+    
     text "Page 2"
     start_new_page
     text "Page 3"
@@ -29,4 +37,4 @@ class PrawnAndTransaction < Prawn::Document
   end
 end
 
-PrawnAndTransaction.new.to_pdf 
+PrawnAndTransaction.new(:optimize_objects => true).to_pdf 
